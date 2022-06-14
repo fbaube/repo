@@ -2,6 +2,7 @@ package repo
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	S "strings"
@@ -19,7 +20,10 @@ import (
 // table, which simplifies column creation and table cross-referencing
 // (and in particular, JOINs).
 //
-func (pDB *SimpleRepo) CreateTable_sqlite(ts TableConfig) {
+func (pDB *SimpleRepo) CreateTable_sqlite(ts TableConfig) error {
+	if pDB.Type() != "sqlite" {
+		return errors.New("simplerepo.sqlite.createtable: not sqlite")
+	}
 	var CTS string // the Create Table SQL string
 	var hasFKs bool
 	hasFKs = (ts.ForenKeys != nil && len(ts.ForenKeys) > 0)
@@ -94,50 +98,68 @@ func (pDB *SimpleRepo) CreateTable_sqlite(ts TableConfig) {
 		L.L.Dbg("Wrote \"CREATE TABLE " + ts.TableName + " ... \" to: " + fnam)
 	}
 	pDB.Handle().MustExec(CTS)
-	ss := pDB.DumpTableSchema_sqlite(ts.TableName)
+	ss, e := pDB.DumpTableSchema_sqlite(ts.TableName)
+	if e != nil {
+		return fmt.Errorf("simplerepo.createtable.sqlite: "+
+			"DumpTableSchema<%s> failed: %w", e)
+	}
 	L.L.Dbg(ts.TableName + " SCHEMA: " + ss)
 	// println("TODO: Insert record with IDX 0 and string descr's")
 	//    and ("TODO: Dump all table records (i.e. just one)")
+	return nil
 }
 
-// DbTblColsIRL returns all column names & types for the specified table.
+// DbTblColsInDb returns all column names & types for the specified table.
 //
-func (pDB *SimpleRepo) DbTblColsIRL(tableName string) []*DbColIRL {
+func (pDB *SimpleRepo) DbTblColsInDb(tableName string) ([]*DbColInDb, error) {
 	if tableName == "" {
-		return nil
+		return nil, nil
+	}
+	if pDB.Type() != "sqlite" {
+		return nil, errors.New(
+			"simplerepo.sqlite.dbtblcolsindb: not sqlite")
 	}
 	var e error
 	var Rs *sql.Rows
 	var CTs []*sql.ColumnType
-	var retval []*DbColIRL
+	var retval []*DbColInDb
 
 	Rs, e = pDB.Handle().Query("select * from " + tableName + " limit 1")
 	if e != nil {
-		println("DB select * failed on table", tableName, ":", e.Error())
-		return nil
+		return nil, fmt.Errorf("simplerepo.dbtblcolsindb: "+
+			"select * : failed on table <%s>: %w", tableName, e)
 	}
 	CTs, e = Rs.ColumnTypes()
 	if e != nil {
-		println("DB.ColumnTypes failed on table", tableName, ":", e.Error())
+		return nil, fmt.Errorf("simplerepo.dbtblcolsindb: "+
+			"rs.ColumnTypes failed on table <%s>: %w", tableName, e)
 	}
 	for _, ct := range CTs {
-		dci := new(DbColIRL)
+		dci := new(DbColInDb)
 		dci.TxtIntKeyEtc = TxtIntKeyEtc(ct.DatabaseTypeName())
 		dci.Code = ct.Name()
 		retval = append(retval, dci)
 	}
-	return retval
+	return retval, nil
 }
 
 // DumpTableSchema_sqlite returns the SQLite schema for the specified table.
 //
-func (pDB *SimpleRepo) DumpTableSchema_sqlite(tableName string) string {
-
-	var theCols []*DbColIRL
+func (pDB *SimpleRepo) DumpTableSchema_sqlite(tableName string) (string, error) {
+	if pDB.Type() != "sqlite" {
+		return "", errors.New(
+			"simplerepo.sqlite.dumptableschema: not sqlite")
+	}
+	var theCols []*DbColInDb
 	var sb S.Builder
 	var sType string
+	var e error
 
-	theCols = pDB.DbTblColsIRL(tableName)
+	theCols, e = pDB.DbTblColsInDb(tableName)
+	if e != nil {
+		return "", fmt.Errorf("simplerepo.dumptableschema.sqlite: "+
+			"pDB.DbTblColsInDb<%s> failed: %w", e)
+	}
 	for i, c := range theCols {
 		sType = ""
 		if c.TxtIntKeyEtc != "text" {
@@ -146,5 +168,5 @@ func (pDB *SimpleRepo) DumpTableSchema_sqlite(tableName string) string {
 		sb.Write([]byte(fmt.Sprintf("[%d]%s%s / ", i, sType, c.Code)))
 	}
 	sb.Write([]byte(fmt.Sprintf("%d fields", len(theCols))))
-	return sb.String()
+	return sb.String(), nil
 }

@@ -2,6 +2,7 @@ package repo
 
 import "fmt"
 
+// TxtIntKeyEtc specified the (SQLite) type of a field.
 type TxtIntKeyEtc string
 
 const (
@@ -9,7 +10,7 @@ const (
 	D_INT              = "0-9" // SQLite "INT"
 	D_KEY              = "Key" // KEY (primary or foreign, SQLite "INTEGER")
 	D_TBL              = "Tbl" // This is describing a table !
-	D_LST              = "lst" // table type, one per enumetarion ??
+	D_LST              = "lst" // table type, one per enumeration ??
 	D_TBD              = "??"  // possible future expansion
 )
 
@@ -17,20 +18,27 @@ const (
 // or field/column value, and is most useful as an element of an enumeration.
 //
 type Datum struct {
-	// TxtIntKeyEtc is only D_TXT or D_INT (or D_KEY). See this func's
-	// comment above re. why this is sufficient, at least for SQLite.
+
+	// TxtIntKeyEtc is D_TXT or D_INT (or D_KEY). See elsewhere
+	// re. why this is sufficient, at least for SQLite.
 	TxtIntKeyEtc
+
 	// Code is a short unique string token - no spaces or punctuation.
 	// We use string codes rather than iota-based integer values for
-	// robustness, because values based on iota could change.
+	// robustness, because values based on iota could change, making
+	// it problematic to store values on external (to the app) storage.
+	//
 	// (1) When a Datum describes a DB column (or table or row's column
 	// value or table!), Code is the actual name of the DB field/table,
 	// and should be all lower case.
+	//
 	// (2) In other uses, Code should be all upper case, and all Codes
 	// in a particular enumeration "should" be of the same length.
 	Code string
+
 	// Name is a short-form name, for common use incl. column headers.
 	Name string
+
 	// Descr is a long-form description.
 	Descr string
 }
@@ -47,8 +55,8 @@ type FLDTP Datum
 // BLKTP is TBS.
 type BLKTP Datum
 
-// InUI is meant to be embedded in any struct
-// that uses a Datum to store an entry in a UI.
+// InUI is meant to be embedded in any struct that uses
+// a Datum to (describe and) store an entry in a UI.
 type InUI struct {
 	Visible, Enabled, Selected bool
 	Position                   int
@@ -77,7 +85,7 @@ var FLDTPs = []FLDTP{
 	{D_TXT, "EMAIL", "Email", "Email address"},
 	{D_TXT, "URLIN", "URL/URI/URN", "Generic path ID (URL, URI, URN)"},
 	{D_TXT, "DATIM", "Date / Time", "Date and/or time (ISO-8601/RFC-3339)"},
-	{D_TXT, "SEMVR", "Sem. ver. nr.", "Semantic version number (x.y.z)"},
+	{D_TXT, "SEMVR", "Sem. ver.nr.", "Semantic version number (x.y.z)"},
 }
 
 // BLKTPs are data structures related to semantic field types.
@@ -85,9 +93,9 @@ var FLDTPs = []FLDTP{
 var BLKTPs = []BLKTP{
 	// LISTS (8)
 	{D_LST, "OLIST", "Ord'd list", "Generic ordered list"},
-	{D_LST, "ULIST", "Unord. list", "Generic unordered list"},
-	{D_LST, "RLIST", "Ranked list", "List ordered by ranking"},
-	{D_LST, "SLIST", "Seq. list", "List ordered as a sequence"},
+	{D_LST, "ULIST", "Unord list", "Generic unordered list"},
+	{D_LST, "RLIST", "Rankd list", "List ordered by ranking"},
+	{D_LST, "SLIST", "Seql. list", "List ordered as a sequence"},
 	{D_LST, "ELIST", "Enum. list", "List of enumerated elements"},
 	{D_LST, "ENUME", "Enum. item", "Element of enumeration"},
 	{D_LST, "XLIST", "Excl. list", "List (select one only)"}, // rbn

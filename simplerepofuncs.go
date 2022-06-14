@@ -38,10 +38,16 @@ type SqliteRepo struct {
 
 // NewSimpleRepo does not open a DB, it merely checks that the given
 // DIRECTORY (not file!) path is OK. That is to say, it initializes
-// path-related variables but does not do more. aPath can be a
-// relative path passed to the CLI; if it is "", the DB path
-// is set to the CWD (current working directory).
-func NewSimpleRepo(aPath string) (*SimpleRepo, error) {
+// path-related variables but does not do more.
+//
+// Currently, aType must be "sqlite".
+// aPath can be a relative path passed to the CLI; if it is "",
+// the DB path is set to the CWD (current working directory).
+//
+func NewSimpleRepo(aType, aPath string) (*SimpleRepo, error) {
+	if aType != "sqlite" {
+		return nil, errors.New("simplerepo.new: not sqlite")
+	}
 	var e error
 	var relFP = aPath
 	if aPath == "" {
@@ -111,7 +117,7 @@ func (p *SimpleRepo) ForceExistDBandTables() error {
 	println("New DB created at:", SU.Tildotted(dest))
 	drivers := sql.Drivers()
 	println("DB driver(s):", fmt.Sprintf("%+v", drivers))
-	p.SetHandle(sqlx.NewDb(theSqlDB, "sqlite3"))
+	p.setHandle(sqlx.NewDb(theSqlDB, "sqlite3"))
 
 	for _, cfg := range AllTableConfigs {
 		p.CreateTable_sqlite(cfg)
@@ -123,9 +129,13 @@ func (p *SimpleRepo) ForceExistDBandTables() error {
 	return nil
 }
 
-func (p *SimpleRepo) Verify() {
+func (p *SimpleRepo) Verify() error {
+	if p.Type() != "sqlite" {
+		return errors.New("simplerepo.verify: not sqlite")
+	}
 	p.MustExecStmt("PRAGMA integrity_check;")
 	p.MustExecStmt("PRAGMA foreign_key_check;")
+	return nil
 }
 
 // ForceEmpty is a convenience function. It first makes a backup.

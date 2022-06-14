@@ -23,14 +23,3 @@ func (p *SimpleRepo) MustExecStmt(s string) {
 	// naff, _ := rslt.RowsAffected()
 	// fmt.Printf("DD:mustExecStmt: ID %d nR %d \n", liid, naff)
 }
-
-/*
-// ForceEmpty is a convenience function. It first makes a backup.
-func (p *Repo) ForceEmpty() {
-	if theDB == nil {
-		panic("db.forcempty.uninitd.L193")
-	}
-	p.MoveToBackup()
-	p.ForceExistDBandTables()
-}
-*/

@@ -22,9 +22,9 @@ type Backupable interface {
         RestoreFromMostRecentBackup() (string, error)
 }*/
 
-// SimpleRepo can be fully described by (a) a path or
-// a URL, plus (2) a "type" string (such as "sqlite").
-// A SimpleRepo is expected to be Backupable.
+// SimpleRepo can be fully described by (1) a filepath or a URL,
+// plus (2) a "type" string (tipicly "sqlite"). A SimpleRepo is
+// expected to be Backupable, and most likely a sSingleFileDBer.
 //
 type SimpleRepo struct {
 	db        *sqlx.DB
@@ -49,6 +49,7 @@ func (p *SimpleRepo) Handle() *sqlx.DB {
 	return p.db
 }
 
-func (p *SimpleRepo) SetHandle(pDB *sqlx.DB) {
+// setHandle is limited to package scope.
+func (p *SimpleRepo) setHandle(pDB *sqlx.DB) {
 	p.db = pDB
 }

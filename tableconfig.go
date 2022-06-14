@@ -1,14 +1,20 @@
 package repo
 
-// TableConfig assumes that when specifying the column types for a DB table,
-// it is enough to use strings and integers. Also a primary key is assumed
-// and foreign keys are allowed. Any field can be nil, except the first
-// (tableName). Obviously the two fields "int*" should be the same length,
-// and also the two fields "str*".
+// TableConfig describes the field structure of a database table,
+// assuming that it is enough to use just two column types, TEXT
+// (for strings) and INTEGER (for integers). Also a primary key
+// is assumed and foreign keys are allowed.
 //
-// Date-time's are not an issue for SQLite, since either a string or an int
-// can be used. We will favor using strings ("TEXT"), which are expected to
-// be ISO-8601 / RFC 3339. It is the first option listed here:
+// Note that field Columns is a slice of [DbColSpec], each of
+// which is four text fields: [TxtIntKeyEtc], Code, Name, Descr.
+//
+// Any field can be nil or length [0], except the first (TableName).
+// This means the field ForenKeys and Columns.
+//
+// Date-time's are not an issue for SQLite, since either a string or
+// an int can be used. We will favor using strings ("TEXT"), which are
+// expected to be ISO-8601 / RFC 3339. It is the first option listed here:
+//
 // https://www.sqlite.org/datatype3.html#date_and_time_datatype:
 //  - TEXT: "YYYY-MM-DD HH:MM:SS.SSS" (or with "T" in the blank position).
 //  - REAL as Julian day numbers: the day count since 24 November 4714 BC.
@@ -18,4 +24,11 @@ type TableConfig struct {
 	TableName string
 	ForenKeys []string
 	Columns   []DbColSpec
+}
+
+// AllTableConfigs configures the three key tables.
+var AllTableConfigs = []TableConfig{
+	TableConfig_Inbatch,
+	TableConfig_Contentity,
+	TableConfig_Topicref,
 }

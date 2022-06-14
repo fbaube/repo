@@ -6,11 +6,9 @@ import (
 	"os"
 	// "is"
 
-	DU "github.com/fbaube/dbutils"
 	FU "github.com/fbaube/fileutils"
+	SU "github.com/fbaube/stringutils"
 	FP "path/filepath"
-	// S "strings"
-	// L "github.com/fbaube/mlog"
 )
 
 // MoveToBackup makes a best effort but might fail if
@@ -29,7 +27,7 @@ func (p *SimpleRepo) MoveToBackup() (string, error) {
 	if p.Type() != "sqlite" {
 		return "", errors.New("simplerepo.movetobackup: not sqlite")
 	}
-	cns := DU.NowAsYMDHM()
+	cns := SU.NowAsYMDHM()
 	toFP := FU.AppendToFileBaseName(fromFP, "-"+cns)
 	toFP, _ = FP.Abs(toFP)
 	// func os.Rename(oldpath, newpath string) error
@@ -59,7 +57,7 @@ func (p *SimpleRepo) CopyToBackup() (string, error) {
 	if p.Type() != "sqlite" {
 		return "", errors.New("simplerepo.copytobackup: not sqlite")
 	}
-	cns := DU.NowAsYMDHM()
+	cns := SU.NowAsYMDHM()
 	toFP := FU.AppendToFileBaseName(fromFP, "-"+cns)
 	toFP, _ = FP.Abs(toFP)
 	e := FU.CopyFromTo(fromFP, toFP)

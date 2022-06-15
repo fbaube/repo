@@ -10,9 +10,10 @@ import (
 
 // ContentityRecord is basically the content plus its "dead properties" -
 // properties that are set by the user, rather than dynamically determined.
+//
 type ContentityRecord struct {
 	Idx_Contentity int
-	Idx_Inbatch    int // NOTE: Maybe rename to FILESET. And, could be multiple!
+	Idx_Inbatch    int // NOTE: Maybe rename to FILESET. Could be multiple?
 	Descr          string
 	FU.PathProps
 	Times
@@ -26,10 +27,19 @@ type ContentityRecord struct {
 	// Linkable = a symbol that CAN be a Linkee
 }
 
+// String implements Stringer.
+//
 func (p *ContentityRecord) String() string {
-	return fmt.Sprintf("PP<%s> AR <%s>", p.PathProps.String(), p.AnalysisRecord.String())
+	return fmt.Sprintf("PP<%s> AR <%s>",
+		p.PathProps.String(), p.AnalysisRecord.String())
 }
 
+// ColumnSpecs_Contentity specifies two path fields (rel & abs),
+// three time fields (creation, import, last-edit), a description,
+// four XML-related fields (MIME-type, MType, XML content type, and
+// XML DOCTYPE), and two LwDITA fields (flavor [xdita,hdita,mdita]),
+// LwDITA content type).
+//
 var ColumnSpecs_Contentity = []DbColSpec{
 	D_RelFP,
 	D_AbsFP,
@@ -49,6 +59,9 @@ var ColumnSpecs_Contentity = []DbColSpec{
 	DbColSpec{D_TXT, "ditacontype", "(Lw)DITA contype", "(Lw)DITA content type"},
 }
 
+// TableConfig_Contentity specifies the table name
+// "contentity" and one foreign key, "inbatch".
+//
 var TableConfig_Contentity = TableConfig{
 	"contentity",
 	// One foreign key

@@ -18,7 +18,7 @@ type Topicref struct {
 	Idx_Tpc_Contentity int
 }
 
-// TableSpec_Topicref describes table TOPICREF.
+// TableSpec_Topicref describes the table.
 //
 var TableSpec_Topicref = DbTblSpec{D_TBL,
 	"TRF", "topicref", "Reference from map to topic"}

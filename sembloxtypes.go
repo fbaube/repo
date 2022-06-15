@@ -101,7 +101,7 @@ var BLKTPs = []BLKTP{
 	{D_LST, "XLIST", "Excl. list", "List (select one only)"}, // rbn
 	{D_LST, "MLIST", "Mult. list", "List (select multiple)"}, // cbx
 	// MISC. STRUX (3)
-	{D_TBD, "TABLE", "Table", "Table / dataframe"},
-	{D_TBD, "UTREE", "Unord. tree", "Tree of unordered children (e.g. XML data)"},
-	{D_TBD, "OTREE", "Ord. tree", "Tree of ordered children (e.g. XML mixed content)"},
+	{D_TBD, "TABLE", "Tableframe", "Table / dataframe"},
+	{D_TBD, "UTREE", "Unord tree", "Tree of unordered children (e.g. XML data)"},
+	{D_TBD, "OTREE", "Ord'd tree", "Tree of ordered children (e.g. XML mixed content)"},
 }
